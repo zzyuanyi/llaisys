@@ -56,6 +56,7 @@ def hf_infer(
 
 def load_llaisys_model(model_path, device_name):
     model = llaisys.models.Qwen2(model_path, llaisys_device(device_name))
+    print("model returned")
     return model
 
 
@@ -67,7 +68,9 @@ def llaisys_infer(
         add_generation_prompt=True,
         tokenize=False,
     )
+    print(input_content)
     inputs = tokenizer.encode(input_content)
+    print(inputs)
     outputs = model.generate(
         inputs,
         max_new_tokens=max_new_tokens,

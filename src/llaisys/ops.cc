@@ -12,7 +12,7 @@
 #include "../ops/self_attention/op.hpp"
 #include "../ops/swiglu/op.hpp"
 
-__C {
+__LLAISYS__C {
     void llaisysAdd(llaisysTensor_t c, llaisysTensor_t a, llaisysTensor_t b) {
         llaisys::ops::add(c->tensor, a->tensor, b->tensor);
     }
@@ -23,7 +23,11 @@ __C {
         llaisys::ops::embedding(out->tensor, index->tensor, weight->tensor);
     }
     void llaisysLinear(llaisysTensor_t out, llaisysTensor_t in, llaisysTensor_t weight, llaisysTensor_t bias) {
-        llaisys::ops::linear(out->tensor, in->tensor, weight->tensor, bias->tensor);
+        if (bias) {
+            llaisys::ops::linear(out->tensor, in->tensor, weight->tensor, bias->tensor);
+        } else {
+            llaisys::ops::linear(out->tensor, in->tensor, weight->tensor, nullptr);
+        }
     }
     void llaisysRearrange(llaisysTensor_t out, llaisysTensor_t in) {
         llaisys::ops::rearrange(out->tensor, in->tensor);

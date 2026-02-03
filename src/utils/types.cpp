@@ -1,6 +1,7 @@
 #include "types.hpp"
 
 #include <cstring>
+#include <emmintrin.h>
 
 namespace llaisys::utils {
 float _f16_to_f32(fp16_t val) {
@@ -82,4 +83,21 @@ bf16_t _f32_to_bf16(float val) {
 
     return bf16_t{bf16_bits};
 }
+
+
+// Wrapper functions that automatically select the best available implementation
+// Convert a batch of BF16 values to FP32 using the best available instruction set
+void bf16_to_fp32_batch(float *dst, const bf16_t *src, size_t count) {
+for (size_t i = 0; i < count; ++i) {
+        dst[i] = _bf16_to_f32(src[i]);
+    }
+}
+
+// Convert a batch of FP32 values to BF16 using the best available instruction set
+void fp32_to_bf16_batch(bf16_t *dst, const float *src, size_t count) {
+    for (size_t i = 0; i < count; ++i) {
+        dst[i] = _f32_to_bf16(src[i]);
+    }
+}
+
 } // namespace llaisys::utils

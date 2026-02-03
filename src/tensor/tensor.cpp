@@ -164,27 +164,116 @@ void Tensor::debug() const {
 }
 
 bool Tensor::isContiguous() const {
-    TO_BE_IMPLEMENTED();
+    if (this->ndim() == 0) {
+        return true;
+    }
+
+    // 最后一个维度的步幅必须是1
+    if (this->_meta.strides.back() != 1) {
+        return false;
+    }
+
+    // 检查其他维度的步幅是否连续
+    for (size_t i = 0; i < this->ndim() - 1; ++i) {
+        if (this->_meta.strides[i] != this->_meta.strides[i + 1] * static_cast<ptrdiff_t>(this->_meta.shape[i + 1])) {
+            return false;
+        }
+    }
+
     return true;
 }
 
 tensor_t Tensor::permute(const std::vector<size_t> &order) const {
-    TO_BE_IMPLEMENTED();
-    return std::shared_ptr<Tensor>(new Tensor(_meta, _storage));
+    size_t ndim = this->ndim();
+    if (order.size() != ndim) {
+        throw std::runtime_error("Permute order size must match tensor dimensions");
+    }
+
+    // 检查 order 是否有效：包含所有维度索引且不重复
+    std::vector<bool> used(ndim, false);
+    for (size_t dim : order) {
+        if (dim >= ndim || used[dim]) {
+            throw std::runtime_error("Invalid permute order");
+        }
+        used[dim] = true;
+    }
+
+    // 根据 order 重新排列形状和步幅
+    std::vector<size_t> new_shape(ndim);
+    std::vector<ptrdiff_t> new_strides(ndim);
+    for (size_t i = 0; i < ndim; ++i) {
+        new_shape[i] = this->_meta.shape[order[i]];
+        new_strides[i] = this->_meta.strides[order[i]];
+    }
+
+    TensorMeta new_meta{this->_meta.dtype, new_shape, new_strides};
+    return std::shared_ptr<Tensor>(new Tensor(new_meta, _storage, _offset));
 }
 
 tensor_t Tensor::view(const std::vector<size_t> &shape) const {
-    TO_BE_IMPLEMENTED();
-    return std::shared_ptr<Tensor>(new Tensor(_meta, _storage));
+    // 检查元素总数是否匹配
+    size_t new_numel = 1;
+    for (size_t s : shape) {
+        new_numel *= s;
+    }
+    if (new_numel != this->numel()) {
+        // 元素总数不匹配，无法 view
+        throw std::runtime_error("Cannot view tensor with different number of elements");
+    }
+
+    // 计算新形状的连续步幅
+    size_t ndim = shape.size();
+    std::vector<ptrdiff_t> new_strides(ndim);
+    if (ndim > 0) {
+        new_strides[ndim - 1] = 1;
+        for (size_t i = 1; i < ndim; ++i) {
+            new_strides[ndim - i - 1] = new_strides[ndim - i] * static_cast<ptrdiff_t>(shape[ndim - i]);
+        }
+    }
+
+    // 检查是否与原始张量的内存布局兼容
+    // 对于 view 操作，我们要求张量是连续的，或者新步幅与原始步幅在某些维度上匹配
+    // 这里简化实现：如果张量是连续的，则允许 view
+    if (!this->isContiguous()) {
+        throw std::runtime_error("Cannot view non-contiguous tensor");
+    }
+
+    TensorMeta new_meta{this->_meta.dtype, shape, new_strides};
+    return std::shared_ptr<Tensor>(new Tensor(new_meta, _storage, _offset));
 }
 
 tensor_t Tensor::slice(size_t dim, size_t start, size_t end) const {
-    TO_BE_IMPLEMENTED();
-    return std::shared_ptr<Tensor>(new Tensor(_meta, _storage));
+    if (dim >= this->ndim()) {
+        throw std::runtime_error("Slice dimension out of range");
+    }
+    if (start >= end || end > this->_meta.shape[dim]) {
+        throw std::runtime_error("Invalid slice range");
+    }
+
+    // 创建新的形状
+    std::vector<size_t> new_shape = this->_meta.shape;
+    new_shape[dim] = end - start;
+
+    // 步幅保持不变
+    std::vector<ptrdiff_t> new_strides = this->_meta.strides;
+
+    // 计算新的偏移量（以字节为单位）
+    size_t new_offset = _offset + start * static_cast<size_t>(this->_meta.strides[dim]) * this->elementSize();
+
+    TensorMeta new_meta{this->_meta.dtype, new_shape, new_strides};
+    return std::shared_ptr<Tensor>(new Tensor(new_meta, _storage, new_offset));
 }
 
 void Tensor::load(const void *src_) {
-    TO_BE_IMPLEMENTED();
+    core::context().setDevice(this->deviceType(), this->deviceId());
+    llaisysMemcpyKind_t memcpy_kind = (this->deviceType() == LLAISYS_DEVICE_CPU)
+                                        ? LLAISYS_MEMCPY_H2H
+                                        : LLAISYS_MEMCPY_H2D;
+    core::context().runtime().api()->memcpy_sync(
+        this->data(),
+        src_,
+        this->numel() * this->elementSize(),
+        memcpy_kind);
 }
 
 tensor_t Tensor::contiguous() const {
