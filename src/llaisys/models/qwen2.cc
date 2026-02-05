@@ -50,15 +50,15 @@ __LLAISYS__C {
         size_t dkvh = model->meta.nkvh * dh;
 
         LOG("Qwen2 Model Configs:")
-        print_config("num_hidden_layers:", nlayer);
-        print_config("vocab_size:", voc);
-        print_config("intermediate_size:", di);
-        print_config("hidden_size:", hs);
-        print_config("head_size:", dh);
-        print_config("num_query_heads:", nh);
-        print_config("q_head_dim:", dqh);
-        print_config("num_key_value_heads:", nkvh);
-        print_config("k_v_head_dim:", dkvh);
+        //print_config("num_hidden_layers:", nlayer);
+        //print_config("vocab_size:", voc);
+        //print_config("intermediate_size:", di);
+        //print_config("hidden_size:", hs);
+        //print_config("head_size:", dh);
+        //print_config("num_query_heads:", nh);
+        //print_config("q_head_dim:", dqh);
+        //print_config("num_key_value_heads:", nkvh);
+        //print_config("k_v_head_dim:", dkvh);
         std::cout << std::endl;
 
         // in_embed (151936, 1536)
