@@ -6,4 +6,14 @@ void print_config(const std::string &label, int value) {
     std::cout << "   " << " "
               << std::left << std::setw(label_width) << (label + ":") // 自动加冒号
               << std::right << std::setw(value_width) << value << std::endl;
+
+}
+void print_config(const std::string &label, size_t value) {
+    const int label_width = 22;
+    const int value_width = 10;
+
+    std::cout << "   " << " "
+              << std::left << std::setw(label_width) << (label + ":") // 自动加冒号
+              << std::right << std::setw(value_width) << value << std::endl;
+
 }
