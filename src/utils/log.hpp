@@ -17,4 +17,6 @@
 #define LOG_WARN(msg) std::cout << COLOR_YELLOW  << msg << COLOR_RESET << std::endl;
 #define LOG_ERROR(msg) std::cout << COLOR_RED  << msg << COLOR_RESET << std::endl;
 
+
 void print_config(const std::string &label, int value);
+void print_config(const std::string &label, size_t value);
