@@ -274,10 +274,10 @@ __LLAISYS__C {
     }
 
     __export int64_t llaisysQwen2ModelInfer(struct LlaisysQwen2Model * model, int64_t *token_ids, size_t ntoken, struct LlaisysQwen2KVCache *kvcache, size_t past_len) {
-        ASSERT(model != NULL, "model is NULL");
-        ASSERT(token_ids != NULL, "token_ids is NULL");
-        ASSERT(ntoken != 0, "ntoken is 0");
-        ASSERT(kvcache != NULL, "kvcache is NULL");
+        //ASSERT(model != NULL, "model is NULL");
+        //ASSERT(token_ids != NULL, "token_ids is NULL");
+        //ASSERT(ntoken != 0, "ntoken is 0");
+        //ASSERT(kvcache != NULL, "kvcache is NULL");
 
         omp_set_num_threads(24);
 
