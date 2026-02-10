@@ -60,7 +60,7 @@ class Qwen2:
         """根据平台返回正确的令牌数组类型"""
         # Windows平台使用c_long，其他平台使用c_int64
         if platform.system() == "Windows":
-            return c_longlong
+            return c_int64
         else:
             return c_int64
 
@@ -88,9 +88,9 @@ class Qwen2:
         ntoken = len(tokens)
         
         # 使用平台特定的类型创建令牌数组
-        if token_array_type == c_longlong:
+        if token_array_type == c_int64:
             # Windows平台使用c_long
-            token_ids = (c_longlong * ntoken)(*tokens)
+            token_ids = (c_int64 * ntoken)(*tokens)
         else:
             # 其他平台使用原逻辑的c_int64
             token_ids = (c_int64 * ntoken)(*tokens)
@@ -113,9 +113,9 @@ class Qwen2:
             ntoken = 1
             
             # 使用平台特定的类型创建令牌数组
-            if token_array_type == c_longlong:
+            if token_array_type == c_int64:
                 # Windows平台使用c_long
-                token_ids = (c_longlong * 1)(next_token)
+                token_ids = (c_int64 * 1)(next_token)
             else:
                 # 其他平台使用原逻辑的c_int64
                 token_ids = (c_int64 * 1)(next_token)
